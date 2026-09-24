@@ -38,7 +38,8 @@ Assemble according to this:
 
 > [!NOTE]  
 > To boot into service mode, bridge pin GP15 to GND before connecting to USB.  
->  This will allow you to view the firmware contents as a USB drive.
+>  This will allow you to view the firmware contents as a USB drive.  
+> Also, keyboard wire colors may vary; refer to connector.
 
 > [!CAUTION]
 > Not all PS/2 keyboards tolerate 3.3V!  
@@ -46,3 +47,7 @@ Assemble according to this:
 > If you see the Caps / Scroll / NumLock blink = keyboard has init and started  
 > Next, take a multimeter and check the voltages (GND-DATA, GND-CLOCK)  
 > If the floating values ​​do not exceed 3.3V, you are safe.  
+
+<h3 align="left">Installation:</h3>  
+
+Connect Pico while ```BOOT``` pressed, Drag and drop latest [UF2](https://github.com/GorGylka/MCKEY/releases) to pico
