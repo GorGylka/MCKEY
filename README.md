@@ -50,4 +50,12 @@ Assemble according to this:
 
 <h3 align="left">Installation:</h3>  
 
-Connect Pico while ```BOOT``` pressed, Drag and drop latest [UF2](https://github.com/GorGylka/MCKEY/releases) to pico
+Connect Pico while ```BOOT``` pressed, Drag and drop latest [UF2](https://github.com/GorGylka/MCKEY/releases) to pico  
+
+<h3 align="left">Usage:</h3>  
+
+4 keys are used for control: ```HOME```, ```END```, ```PAGE_UP```, ```PAGE_DOWN```.  
+Inputs from these 4 keys are not sent as keyboard presses.  
+| ```HOME```— OK / Enter | ```PAGE_UP```—Up |
+| ------------- | ------------- |
+| ```END``` — NO / Exit | ```PAGE_DOWN```—Down |
