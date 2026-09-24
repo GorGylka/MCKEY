@@ -24,3 +24,10 @@
 - ```No Driver``` required
 - Easy 6 Wire assembly  
 - Full control direcly from keyboard  
+
+<h3 align="left">Assembly:</h3>  
+<h3 align="left">You will need:</h2>
+
+- Raspberry Pi Pico
+- SSD1306 OLED Display, 128x64, I2C     
+- PS/2 Keyboard
