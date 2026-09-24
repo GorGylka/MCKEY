@@ -4,7 +4,7 @@
 <h3 align="center"> Macro USB Keyboard based on Raspberry Pi Pico  </h3>  
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/GorGylka/MCKEY/refs/heads/main/oled_mc_vertical_128x32.gif">
+<img src="https://raw.githubusercontent.com/GorGylka/MCKEY/refs/heads/main/readme_stuff/oled_mc_vertical_256x64.gif">
 </p> 
 
 <p align="center">
@@ -30,4 +30,7 @@
 
 - Raspberry Pi Pico
 - SSD1306 OLED Display, 128x64, I2C     
-- PS/2 Keyboard
+- PS/2 Keyboard  
+  
+Assemble according to this:  
+<img src="https://github.com/GorGylka/MCKEY/blob/main/readme_stuff/wiring.jpg" width=60% height=60%>  
