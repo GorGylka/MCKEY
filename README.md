@@ -18,7 +18,7 @@
 
 <h3 align="left">Features:</h3>  
 
-- Detects as a standard keyboard  
+- Detects as a standard ```USB``` keyboard  
 - Works on any OS  
 - ```10``` slots for macro, ```~13000``` inputs per each slot  
 - ```No Driver``` required
