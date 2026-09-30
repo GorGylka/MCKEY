@@ -45,8 +45,6 @@ Assemble according to this:
 > Not all PS/2 keyboards tolerate 3.3V!  
 > To make sure, try run keyboard from 3.3V source (GND and VCC pins)  
 > If you see the Caps / Scroll / NumLock blink = keyboard has init and started  
-> Next, take a multimeter and check the voltages (GND-DATA, GND-CLOCK)  
-> If the floating values ​​do not exceed 3.3V, you are safe.  
 
 <h3 align="left">Installation:</h3>  
 
