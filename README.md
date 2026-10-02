@@ -22,7 +22,7 @@
 - Works on any OS  
 - ```10``` slots for macro, ```~13000``` inputs per each slot  
 - ```No Driver``` required
-- Easy 6 Wire assembly  
+- Easy assembly  
 - Full control direcly from keyboard  
 
 <h3 align="left">Assembly:</h3>  
