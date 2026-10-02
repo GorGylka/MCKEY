@@ -1,4 +1,4 @@
-"""Macro Keyboard v1.7 — CircuitPython 10.x, RP2040 Zero / Pico.
+"""Macro Keyboard v1.9.1 — CircuitPython 10.x, RP2040 Zero / Pico.
 No external libraries needed. See README_RU.md before installation.
 """
 import gc
@@ -13,6 +13,12 @@ from macro_store import (Recorder, inspect, metadata, path_for, recover,
 from oled import OLED
 from startup import stage, wait_usb, show_error, cleanup
 from keyboard_leds import KeyboardLEDs
+from keyboard_init import initialize as initialize_keyboard
+from settings_store import recover as recover_settings, load as load_settings, save as save_settings
+
+
+NUM_HOTKEYS = {89:0, 90:1, 91:2, 92:3, 93:4,
+               94:5, 95:6, 96:7, 97:8, 98:9}
 
 
 def ms(): return time.monotonic_ns() // 1_000_000
@@ -62,17 +68,25 @@ class App:
         screen = self.o
         stage(screen, 'USB HID')
         self.hid = HID()
+        # Claim the PS/2 pins as early as code.py can. Dual-protocol
+        # keyboards inspect line states during startup.
+        stage(screen, 'PS2 PIO')
+        from ps2_pio import Receiver
+        self.rx = Receiver()
+        stage(screen, 'PS2 INIT')
+        self.ps2_initialized = initialize_keyboard(self.rx)
         self.decoder = Decoder()
         self.physical = bytearray(256)
         self.blocked = bytearray(256)
         self.state = 'splash'
-        self.slot = self.choice = 0
+        self.slot = self.choice = self.menu_index = 0
         self.rec = self.play = None
         self.tap_key = None
         self.pulse_until = 0
         self.done = self.total = 0
         self.pending = None
         self.loop_play = False
+        self.hotkey_play = False
         self.tail = ''
         self.name = ''
         self.message = ''
@@ -81,20 +95,23 @@ class App:
         self.last_draw = self.last_gc = self.last_debug = 0
         self.deadline = 0
         self.meta = []
+        self.num_hotkey = False
+        self.setting_choice = 0
         stage(screen, 'MACRO FILES')
         for i in range(10):
             recover(i)
             self.meta.append(metadata(i))
+        recover_settings()
+        self.num_hotkey = load_settings()
         stage(screen, 'WAIT USB')
         wait_usb(self.hid)
-        stage(screen, 'PS2 PIO')
-        from ps2_pio import Receiver
-        self.rx = Receiver()
         self.leds = KeyboardLEDs(self.hid.dev, self.rx)
         stage(screen, 'READY')
         self.o.animate(True, ms())
         self.draw(ms())
-        print('Macro Keyboard 1.7; capacity', CAPACITY, '; free RAM', gc.mem_free())
+        print('Macro Keyboard 1.9.1; capacity', CAPACITY, '; free RAM', gc.mem_free())
+        print('PS2 initialized:', self.ps2_initialized)
+        print('NUM HOTKEY:', 'YES' if self.num_hotkey else 'NO')
         st = os.statvfs('/')
         print('Flash free:', st[0]*st[4], '; PS/2 DATA GP2 CLOCK GP3')
 
@@ -134,7 +151,7 @@ class App:
         self.choice = 0
         self.notice('SAVED' if saved else 'CANCELLED')
 
-    def start_play(self, loop=False):
+    def start_play(self, loop=False, hotkey=False):
         self.quiet()
         path = path_for(self.slot)
         _, self.total, _ = inspect(path, True)
@@ -142,10 +159,20 @@ class App:
         self.play.read(HEADER)
         self.done = 0
         self.loop_play = loop
+        self.hotkey_play = hotkey
         self.state = 'play'
         self.deadline = ms()
         self.next_event()
         self.dirty = True
+
+    def start_hotkey(self, slot):
+        self.slot = slot
+        self.menu_index = slot
+        self.choice = 1  # PLAY remains selected after playback finishes.
+        if not self.meta[slot]:
+            self.notice('MACRO IS EMPTY')
+            return
+        self.start_play(hotkey=True)
 
     def next_event(self):
         if self.done == self.total:
@@ -166,12 +193,14 @@ class App:
         self.pending = kind, key
 
     def stop_play(self, cancelled):
+        return_to_splash = self.hotkey_play and not cancelled
         self.loop_play = False
+        self.hotkey_play = False
         if self.play: self.play.close()
         self.play = None
         self.pending = None
         self.quiet()
-        self.state = 'actions'
+        self.state = 'splash' if return_to_splash else 'actions'
         self.notice('STOPPED' if cancelled else 'DONE %d/%d' % (self.done,self.total))
 
     def playback_tick(self, now):
@@ -225,19 +254,29 @@ class App:
                     self.choice = 0
                     self.notice('DELETED')
         elif self.state == 'splash':
-            if key == 74: self.state = 'slots'
+            if key == 74:
+                self.menu_index = self.slot
+                self.state = 'slots'
         elif self.state == 'slots':
-            if key == 75: self.slot = (self.slot-1) % 10
-            elif key == 78: self.slot = (self.slot+1) % 10
+            if key == 75: self.menu_index = (self.menu_index-1) % 11
+            elif key == 78: self.menu_index = (self.menu_index+1) % 11
             elif key == 77: self.state = 'splash'
             elif key == 74:
-                self.state = 'actions'
-                self.choice = 0
+                if self.menu_index == 10:
+                    self.state = 'settings'
+                else:
+                    self.slot = self.menu_index
+                    self.state = 'actions'
+                    self.choice = 0
+            if self.menu_index < 10:
+                self.slot = self.menu_index
         elif self.state == 'actions':
             options = self.options()
             if key == 75: self.choice = (self.choice-1) % len(options)
             elif key == 78: self.choice = (self.choice+1) % len(options)
-            elif key == 77: self.state = 'slots'
+            elif key == 77:
+                self.menu_index = self.slot
+                self.state = 'slots'
             elif key == 74:
                 action = options[self.choice]
                 if action == 'RECORD':
@@ -250,6 +289,20 @@ class App:
                     self.quiet()
                     self.name = self.meta[self.slot][0]
                     self.state = 'rename'
+        elif self.state == 'settings':
+            if key == 77: self.state = 'slots'
+            elif key == 74:
+                self.setting_choice = 0 if self.num_hotkey else 1
+                self.state = 'num_hotkey'
+        elif self.state == 'num_hotkey':
+            if key in (75, 78): self.setting_choice ^= 1
+            elif key == 77: self.state = 'settings'
+            elif key == 74:
+                value = self.setting_choice == 0
+                save_settings(value)
+                self.num_hotkey = value
+                self.state = 'settings'
+                self.notice('NUM HOTKEY ' + ('YES' if value else 'NO'))
         self.dirty = True
 
     def key_event(self,key,down,pulse,now):
@@ -257,6 +310,10 @@ class App:
         self.physical[key] = down and not pulse
         if key in MENU:
             if down: self.navigate(key)
+            return
+        if self.state == 'splash' and self.num_hotkey and key in NUM_HOTKEYS:
+            if down:
+                self.start_hotkey(NUM_HOTKEYS[key])
             return
         if not down:
             if self.blocked[key]:
@@ -323,17 +380,21 @@ class App:
                  else 'Macro%d' % (self.slot+1))
         if self.state == 'splash':
             self.o.splash()
-            self.o.text('     Press HOME',5)
+            self.o.text('  PRESS HOME OR NUM' if self.num_hotkey
+                        else '     Press HOME',5)
         elif self.state == 'slots':
-            self.o.text('    MACROS %d/10' % (self.slot+1),0)
-            first = min(max(0,self.slot-2),5)
+            self.o.text('        MENU',0)
+            first = min(max(0,self.menu_index-2),6)
             for row,i in enumerate(range(first,first+5),1):
-                name = self.meta[i][0] if self.meta[i] else 'Macro %d EMPTY' % (i+1)
-                self.o.text(('>' if i == self.slot else ' ') + name + ('<' if i == self.slot else ' '),row)
+                if i == 10:
+                    name = 'SETTINGS'
+                else:
+                    name = self.meta[i][0] if self.meta[i] else 'Macro %d EMPTY' % (i+1)
+                self.o.text(('>' if i == self.menu_index else ' ') + name + ('<' if i == self.menu_index else ' '),row)
         elif self.state == 'actions':
             self.o.text('       ' + title,0)
-            for row,action in enumerate(self.options(),1):
-                self.o.text(('>' if row-1 == self.choice else ' ') + action + ('<' if row-1 == self.choice else ' '),row)
+            for row,action in enumerate(self.options(),2):
+                self.o.text(('>' if row-2 == self.choice else ' ') + action + ('<' if row-2 == self.choice else ' '),row)
         elif self.state == 'record':
             self.o.text('       ' + title,0)
             self.o.text('Record %d/%d' % (self.rec.count,CAPACITY),2)
@@ -354,6 +415,18 @@ class App:
             self.o.text('       ' + title,0)
             self.o.text('OVERWRITE?' if self.state == 'overwrite' else 'DELETE?',2)
             self.o.text('HOME-YES END-NO',4)
+        elif self.state == 'settings':
+            self.o.text('SETTINGS',0)
+            self.o.text('>NUM HOTKEY',2)
+            self.o.text(' ' + ('YES' if self.num_hotkey else 'NO'),3)
+            self.o.text('HOME SELECT',5)
+            self.o.text('END BACK',6)
+        elif self.state == 'num_hotkey':
+            self.o.text('NUM HOTKEY',0)
+            self.o.text(('>' if self.setting_choice == 0 else ' ') + 'YES',2)
+            self.o.text(('>' if self.setting_choice == 1 else ' ') + 'NO',3)
+            self.o.text('HOME-SAVE',5)
+            self.o.text('END-CANCEL',6)
         self.o.text(status,7)
         self.o.invert_row(7)
         self.o.show()

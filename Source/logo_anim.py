@@ -3,7 +3,7 @@ import os
 import struct
 
 # None uses the period in the file (100 ms). Set 50 for 20 fps, 200 for 5 fps.
-FRAME_MS_OVERRIDE = 50
+FRAME_MS_OVERRIDE = None
 
 class Animation:
     def __init__(self, path='/logo.anim'):

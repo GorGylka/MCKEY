@@ -8,7 +8,7 @@ def stage(screen, name):
     STAGE = name
     print('BOOT:', name)
     screen.clear()
-    screen.text('MACRO KEYBOARD 1.7', 0)
+    screen.text('MACRO KEYBOARD 1.9.1', 0)
     screen.text(name, 3)
     screen.show()
 
