@@ -61,7 +61,8 @@ Assemble according to this:
 
 > [!NOTE]  
 > To boot into service mode, bridge pin GP15 to GND before connecting to USB.  
->  This will allow you to view the firmware contents as a USB drive.  
+>  This will allow you to view the firmware contents as a USB drive (dump macro, e.t.c.).  
+> Resistors are needed to switch USB keyboard to PS/2 mode.  
 > Also, keyboard wire colors may vary; refer to connector.
 
 > [!CAUTION]
