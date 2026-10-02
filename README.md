@@ -78,6 +78,5 @@ Connect Pico while ```BOOT``` pressed, Drag and drop latest [UF2](https://github
 
 4 keys are used for control: ```HOME```, ```END```, ```PAGE_UP```, ```PAGE_DOWN```.  
 Inputs from these 4 keys are not sent as keyboard presses.  
-| ```HOME```— OK / Enter | ```PAGE_UP```—Up |
-| ------------- | ------------- |
-| ```END``` — NO / Exit | ```PAGE_DOWN```—Down |
+Num keys run macro only on splash screen (if the menu is not open and settings NUM HOTKEY - YES)
+<img src="https://raw.githubusercontent.com/GorGylka/MCKEY/refs/heads/main/readme_stuff/controls.jpg" width=60% height=60%>  
