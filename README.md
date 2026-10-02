@@ -30,11 +30,34 @@
 
 - Raspberry Pi Pico
 - SSD1306 OLED Display, 128x64, I2C     
-- PS/2 Keyboard  
+- PS/2 or USB (PS/2 compatible) Keyboard
+- 2x 4.7K Ω Resistors (optional)
+- Tact Button (optional)  
   
 Assemble according to this:  
 
-<img src="https://github.com/GorGylka/MCKEY/blob/main/readme_stuff/wiring.jpg" width=60% height=60%>  
+
+-  ```PICO``` GPIO2 — ```KEYBOARD``` DATA
+-  ```PICO``` GPIO3 — ```KEYBOARD``` CLOCK
+-  ```PICO``` 3V3 — ```KEYBOARD``` VDD
+-  ```PICO``` GND — ```KEYBOARD``` GND
+-  ```PICO``` GPIO4 — ```DISPLAY``` SDA
+-  ```PICO``` GPIO5 — ```DISPLAY``` SCK
+-  ```PICO``` 3v3 — ```DISPLAY``` VCC
+-  ```PICO``` GND — ```DISPLAY``` GND
+-  ```PICO``` GPIO15 — Button — RPi pico GND
+-  ```PICO``` 3V3 — ```PICO``` GPIO2
+-  ```PICO``` 3V3 — ```PICO``` GPIO3
+
+
+
+<img src="https://raw.githubusercontent.com/GorGylka/MCKEY/refs/heads/main/readme_stuff/picops2.jpg" width=60% height=60%>  
+
+<img src="https://raw.githubusercontent.com/GorGylka/MCKEY/refs/heads/main/readme_stuff/picousb.jpg" width=60% height=60%>  
+
+<img src="https://raw.githubusercontent.com/GorGylka/MCKEY/refs/heads/main/readme_stuff/picozerops2.jpg" width=60% height=60%>  
+
+<img src="https://raw.githubusercontent.com/GorGylka/MCKEY/refs/heads/main/readme_stuff/picozerousb.jpg" width=60% height=60%>  
 
 > [!NOTE]  
 > To boot into service mode, bridge pin GP15 to GND before connecting to USB.  
