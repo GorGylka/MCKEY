@@ -46,8 +46,8 @@ Assemble according to this:
 -  ```PICO``` 3v3 — ```DISPLAY``` VCC
 -  ```PICO``` GND — ```DISPLAY``` GND
 -  ```PICO``` GPIO15 — Button — RPi pico GND
--  ```PICO``` 3V3 — ```PICO``` GPIO2
--  ```PICO``` 3V3 — ```PICO``` GPIO3
+-  ```PICO``` 3V3 — 4.7K Ω — ```PICO``` GPIO2
+-  ```PICO``` 3V3 — 4.7K Ω — ```PICO``` GPIO3
 
 
 
