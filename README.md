@@ -65,9 +65,9 @@ Assemble according to this:
 > Also, keyboard wire colors may vary; refer to connector.
 
 > [!CAUTION]
-> Not all PS/2 keyboards tolerate 3.3V!  
-> To make sure, try run keyboard from 3.3V source (GND and VCC pins)  
-> If you see the Caps / Scroll / NumLock blink = keyboard has init and started  
+> Not all keyboards tolerate 3.3V!  
+> Not all USB keyboards have PS/2 mode.  
+> In my tests, only 60% PS/2 and 30% USB keyboards are compatible.  
 
 <h3 align="left">Installation:</h3>  
 
